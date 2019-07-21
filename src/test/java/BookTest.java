@@ -83,5 +83,19 @@ public class BookTest{
 
     }
 
+    //수찬
+    @Test(expected = IllegalArgumentException.class)
+    public void 책번호를_음수로_저장하면_예외발생(){
+        Book book=mock(Book.class);
+        doThrow(new IllegalArgumentException()).when(book).setNum(-1);
+        book.setNum(-1);
+    }
+    //수찬
+    @Test
+    public void 빈객체인지테스트(){
+        List<Book>bookList=mock(List.class);
+        assertThat(bookList.size(), Is.is(0));
+    }
+
 
 }
