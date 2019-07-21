@@ -1,5 +1,8 @@
 import org.hamcrest.core.Is;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,33 +11,37 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
-public class BookTest{
+@RunWith(MockitoJUnitRunner.class)
+public class BookTest {
+
+    @Mock
+    private BookManagement bookManagement;
 
     @Test   //김훈민
-    public void 책의_첫글자가_대문자인가(){
+    public void 책의_첫글자가_대문자인가() {
         UsefulCalculator book = new UsefulCalculator();
-        Book book1 = new Book(1,"Kin","we");
-        Book book2 = new Book(2,"hun","GE");
+        Book book1 = new Book(1, "Kin", "we");
+        Book book2 = new Book(2, "hun", "GE");
 
         assertTrue(book.UpperCaseCharacter(book1.getTitle()));
         assertFalse(book.UpperCaseCharacter(book2.getTitle()));
     }
 
     @Test //김훈민
-    public void 책의_작가를_출력하는가()
-    {
+    public void 책의_작가를_출력하는가() {
         UsefulCalculator book = new UsefulCalculator();
-        Book book1 = new Book(1,"Kin","we");
-        Book book2 = new Book(2,"hun","GE");
+        Book book1 = new Book(1, "Kin", "we");
+        Book book2 = new Book(2, "hun", "GE");
 
-        assertThat(book.what_is_book_author(book1),is("we"));
-        assertThat(book.what_is_book_author(book2),is("GE"));
+        assertThat(book.what_is_book_author(book1), is("we"));
+        assertThat(book.what_is_book_author(book2), is("GE"));
     }
 
     @Test //김훈민
-    public void 책에_value를_임의로_넣었을때_그_값이_제대로_들어가있고_그_값을_리턴하는가(){
+    public void 책에_value를_임의로_넣었을때_그_값이_제대로_들어가있고_그_값을_리턴하는가() {
         Book book = mock(Book.class);
         when(book.getTitle()).thenReturn("kin");
         assertThat(book.getTitle(), Is.is("kin"));
@@ -47,16 +54,16 @@ public class BookTest{
     }
 
     @Test //황수진 method 1
-    public void 북리스트사이즈테스트(){
-        List<Book> books =new ArrayList<Book>();
-        books.add(new Book(1234,"HarryPotter 1","J.K"));
-        books.add(new Book(1235,"HarryPotter 2","J.K"));
-        books.add(new Book(1236,"HarryPotter 3 ","J.K"));
-        assertThat(books.size(),is(3));
+    public void 북리스트사이즈테스트() {
+        List<Book> books = new ArrayList<Book>();
+        books.add(new Book(1234, "HarryPotter 1", "J.K"));
+        books.add(new Book(1235, "HarryPotter 2", "J.K"));
+        books.add(new Book(1236, "HarryPotter 3 ", "J.K"));
+        assertThat(books.size(), is(3));
     }
 
     @Test //황수진 method2
-    public void Timeout테스트(){
+    public void Timeout테스트() {
 
         Book book = mock(Book.class);
         book.setTitle("Harry Potter");
@@ -64,23 +71,37 @@ public class BookTest{
     }
 
     @Test //황수진 method3
-    public void 도서관리숫자(){
+    public void 도서관리숫자() {
 
-        List<Book> books =new ArrayList<Book>();
-        List<Book> books_1200 =new ArrayList<Book>();
+        List<Book> books = new ArrayList<Book>();
+        List<Book> books_1200 = new ArrayList<Book>();
 
-        books.add(new Book(1000,"HarryPotter Story","J.K"));
-        books.add(new Book(1235,"HarryPotter 1","J.K"));
-        books.add(new Book(1236,"HarryPotter 2 ","J.K"));
+        books.add(new Book(1000, "HarryPotter Story", "J.K"));
+        books.add(new Book(1235, "HarryPotter 1", "J.K"));
+        books.add(new Book(1236, "HarryPotter 2 ", "J.K"));
 
-        for(int i=0;i<books.size();i++){
-            if(books.get(i).getNum()>=1200){
+        for (int i = 0; i < books.size(); i++) {
+            if (books.get(i).getNum() >= 1200) {
                 books_1200.add(books.get(i));
             }
         }
-        assertTrue(books_1200.get(0).getNum()>=1200);
-        assertTrue(books_1200.get(1).getNum()>=1200);
+        assertTrue(books_1200.get(0).getNum() >= 1200);
+        assertTrue(books_1200.get(1).getNum() >= 1200);
 
+    }
+
+    @Test
+    public void 책_작가_이름_저장() {
+        Book book = mock(Book.class);
+        book.setAuthor("베르나르 베르베르");
+        verify(book).setAuthor(anyString());
+    }
+
+    @Test
+    public void 책번호로찾기_적어도_한번_실행되는지() {
+        given(bookManagement.findBook(1)).willReturn(new Book(1, "개미", "베르나르 베르베르"));
+        Book book = bookManagement.findBook(1);
+        verify(bookManagement, atLeast(1)).findBook(1);
     }
 
     //수찬
@@ -98,4 +119,11 @@ public class BookTest{
     }
 
 
+    @Test
+    public void 책_번호가_맞는지() {
+        given(bookManagement.findBook(2)).willReturn(new Book(2, "어린왕자", "생택쥐베리"));
+        Book book = bookManagement.findBook(2);
+        assertThat(book.getNum(), Is.is(2));
+
+    }
 }
